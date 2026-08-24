@@ -3,11 +3,13 @@ from dashscope import Generation
 import dashscope
 dashscope.base_http_api_url = 'https://dashscope.aliyuncs.com/api/v1'
 from config import API_KEY
+from chunker import split_text
 
 
 
 try:
     knowledge  = ""
+    document = []
 
     for filename in os.listdir("knowledge"):
         if filename.endswith(".txt"):
@@ -15,6 +17,11 @@ try:
 
             with open(file_path, "r", encoding="utf-8") as file:
                 knowledge += file.read() + "\n"
+                chunks = split_text(knowledge, chunk_size=1000, overlap=200)
+                document.append({
+                    "file_name":filename,
+                    "chunks":chunks
+                })
 except FileNotFoundError:
     print("错误：找不到知识库文件")
     exit(1)
@@ -29,7 +36,7 @@ prompt = f"""
 请根据下面的知识库内容回答用户的问题。
 
 知识库内容：
-{knowledge}
+{document}
 
 用户问题：
 {question}
