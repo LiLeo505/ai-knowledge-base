@@ -9,5 +9,7 @@ def get_embedding(text: str) -> list[float]:
         input=text,
         api_key=API_KEY
     )
+    if response.status_code != 200:
+        raise RuntimeError(f"调用失败：{response.code} {response.message}")
     return response.output['embeddings'][0]['embedding']
 

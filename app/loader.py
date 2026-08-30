@@ -1,6 +1,8 @@
 import os
 
+from pypdf import PdfReader
 
+#读取文件
 def load_documents(folder_path):
     documents = []
 
@@ -22,6 +24,27 @@ def load_documents(folder_path):
                         "content": content
                     }
                 )
+
+        #读取PDF文件
+        elif filename.endswith(".pdf"):
+            reader = PdfReader(file_path)
+
+            content = ""
+            for page in reader.pages:
+                text = page.extract_text()
+
+
+                if text:
+                    content += text
+
+
+            documents.append(
+                {
+                    "filename": filename,
+                    "content": content
+                }
+            )
+            
 
     return documents
 

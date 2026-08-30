@@ -2,14 +2,12 @@ from dashscope import Generation
 import dashscope
 dashscope.base_http_api_url = 'https://dashscope.aliyuncs.com/api/v1'
 from config import API_KEY
-from vector_db import search
-import chromadb
+from vector_db import search,get_collection
+
 
 
 def ask(question):
-    client = chromadb.PersistentClient(path="./chromadb")
-
-    collection = client.get_collection(name="knowledge")
+    collection = get_collection()
 
     print("连接知识库成功")
 
@@ -53,6 +51,7 @@ def ask(question):
 
         print("=" * 20 + "思考过程" + "=" * 20)
         print("=" * 20 + "完整回复" + "=" * 20)
+        full_answer = ""
         for response in responses:
             if response.status_code == 200:
                 message = response.output.choices[0].message
@@ -61,11 +60,14 @@ def ask(question):
                     print(reasoning, end="")
                 elif message.content:
                     print(message.content, end="", flush=True)
+                    full_answer += message.content
             else:
                 print(f"\nHTTP返回码：  {response.status_code}")
                 print(f"错误码：{response.code}")
                 print(f"错误信息：{response.message}")
                 break
         print()
+        return full_answer
     except Exception as e:
         print(f"请求过程中发生错误：{str(e)}")
+        return f"错误：{str(e)}"
